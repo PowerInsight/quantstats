@@ -1,6 +1,6 @@
 [project]
 name = "quantstats"
-version = "0.0.65"
+version = "0.0.66"
 description = "Quantstats"
 authors = [{ name = "Ran Aroussi", email = "ran@aroussi.com" }]
 readme = "README.rst"
