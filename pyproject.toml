@@ -15,3 +15,6 @@ dependencies = [
     "yfinance>=0.1.70",
     "python-dateutil>=2.0",
 ]
+
+[tool.uv]
+cache-keys = [{ git = { commit = true } }]
