@@ -22,3 +22,8 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 cache-keys = [{ git = { commit = true } }]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
