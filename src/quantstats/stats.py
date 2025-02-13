@@ -22,7 +22,6 @@ from warnings import warn
 import pandas as _pd
 import numpy as _np
 from math import ceil as _ceil, sqrt as _sqrt
-from scipy.stats import norm as _norm, linregress as _linregress
 
 from . import utils as _utils
 
@@ -311,7 +310,6 @@ def rolling_sharpe(
     periods_per_year=252,
     prepare_returns=True,
 ):
-
     if rf != 0 and rolling_period is None:
         raise Exception("Must provide periods if rf != 0")
 
@@ -393,6 +391,7 @@ def adjusted_sortino(returns, rf=0, periods=252, annualize=True, smart=False):
 def probabilistic_ratio(
     series, rf=0.0, base="sharpe", periods=252, annualize=False, smart=False
 ):
+    from scipy.stats import norm as _norm
 
     if base.lower() == "sharpe":
         base = sharpe(series, periods=periods, annualize=False, smart=smart)
@@ -619,6 +618,8 @@ def ror(returns):
 
 
 def value_at_risk(returns, sigma=1, confidence=0.95, prepare_returns=True):
+    from scipy.stats import norm as _norm
+
     """
     Calculats the daily value-at-risk
     (variance-covariance calculation with confidence n)
@@ -882,6 +883,8 @@ def kelly_criterion(returns, prepare_returns=True):
 
 def r_squared(returns, benchmark, prepare_returns=True):
     """Measures the straight line fit of the equity curve"""
+    from scipy.stats import linregress as _linregress
+
     # slope, intercept, r_val, p_val, std_err = _linregress(
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
@@ -992,8 +995,9 @@ def compare(
             * 100
         }
         strategy = {
-            "Returns_"
-            + str(i): _utils.aggregate_returns(returns[col], aggregate, compounded)
+            "Returns_" + str(i): _utils.aggregate_returns(
+                returns[col], aggregate, compounded
+            )
             * 100
             for i, col in enumerate(returns.columns)
         }
