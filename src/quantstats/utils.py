@@ -21,8 +21,17 @@ import io as _io
 import datetime as _dt
 import pandas as _pd
 import numpy as _np
-from . import stats as _stats
 import inspect
+
+
+def _compsum(returns):
+    """Calculates rolling compounded returns"""
+    return returns.add(1).cumprod(axis=0) - 1
+
+
+def _comp(returns):
+    """Calculates total compounded returns"""
+    return returns.add(1).prod(axis=0) - 1
 
 
 def _mtd(df):
@@ -73,7 +82,7 @@ def to_prices(returns, base=1e5):
     """Converts returns series to price data"""
     returns = returns.copy().fillna(0).replace([_np.inf, -_np.inf], float("NaN"))
 
-    return base + base * _stats.compsum(returns)
+    return base + base * _compsum(returns)
 
 
 def log_returns(returns, rf=0.0, nperiods=None):
@@ -116,7 +125,7 @@ def group_returns(returns, groupby, compounded=False):
     group_returns(df, [df.index.year, df.index.month])
     """
     if compounded:
-        return returns.groupby(groupby).apply(_stats.comp)
+        return returns.groupby(groupby).apply(_comp)
     return returns.groupby(groupby).sum()
 
 
