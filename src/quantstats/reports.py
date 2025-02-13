@@ -29,11 +29,6 @@ from . import __version__, stats as _stats, utils as _utils
 from dateutil.relativedelta import relativedelta
 from io import StringIO
 
-try:
-    from IPython.display import display as iDisplay, HTML as iHTML
-except ImportError:
-    from IPython.core.display import display as iDisplay, HTML as iHTML
-
 
 def _get_trading_periods(periods_per_year=252):
     half_year = _ceil(periods_per_year / 2)
@@ -502,6 +497,11 @@ def full(
     match_dates=True,
     **kwargs,
 ):
+    try:
+        from IPython.display import display as iDisplay, HTML as iHTML
+    except ImportError:
+        from IPython.core.display import display as iDisplay, HTML as iHTML
+
     # prepare timeseries
     if match_dates:
         returns = returns.dropna()
@@ -651,6 +651,11 @@ def basic(
     match_dates=True,
     **kwargs,
 ):
+    try:
+        from IPython.display import display as iDisplay, HTML as iHTML
+    except ImportError:
+        from IPython.core.display import display as iDisplay, HTML as iHTML
+
     # prepare timeseries
     if match_dates:
         returns = returns.dropna()
@@ -1607,6 +1612,11 @@ def _html_table(obj, showindex="default"):
 
 
 def _download_html(html, filename="quantstats-tearsheet.html"):
+    try:
+        from IPython.display import display as iDisplay, HTML as iHTML
+    except ImportError:
+        from IPython.core.display import display as iDisplay, HTML as iHTML
+
     jscode = _regex.sub(
         " +",
         " ",
@@ -1625,6 +1635,11 @@ def _download_html(html, filename="quantstats-tearsheet.html"):
 
 
 def _open_html(html):
+    try:
+        from IPython.display import display as iDisplay, HTML as iHTML
+    except ImportError:
+        from IPython.core.display import display as iDisplay, HTML as iHTML
+
     jscode = _regex.sub(
         " +",
         " ",
