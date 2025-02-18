@@ -250,8 +250,14 @@ def _prepare_benchmark(benchmark=None, period="max", rf=0.0, prepare_returns=Tru
 
     period can be options or (expected) _pd.DatetimeIndex range
     """
+
     if benchmark is None:
         return None
+
+    if isinstance(benchmark, str):
+        from .download import download_returns
+
+        benchmark = download_returns(benchmark)
 
     elif isinstance(benchmark, _pd.DataFrame):
         benchmark = benchmark[benchmark.columns[0]].copy()
