@@ -1,5 +1,4 @@
 import yfinance as _yf
-from .utils import to_prices, _prepare_returns
 import pandas as _pd
 import numpy as _np
 
@@ -19,41 +18,6 @@ def download_returns(ticker, period="max", proxy=None):
     df = _yf.download(**params)["Close"].pct_change()
     df = df.tz_localize(None)
     return df
-
-
-def _prepare_benchmark(benchmark=None, period="max", rf=0.0, prepare_returns=True):
-    """
-    Fetch benchmark if ticker is provided, and pass through
-    _prepare_returns()
-
-    period can be options or (expected) _pd.DatetimeIndex range
-    """
-    if benchmark is None:
-        return None
-
-    if isinstance(benchmark, str):
-        benchmark = download_returns(benchmark)
-
-    elif isinstance(benchmark, _pd.DataFrame):
-        benchmark = benchmark[benchmark.columns[0]].copy()
-
-    if isinstance(period, _pd.DatetimeIndex) and set(period) != set(benchmark.index):
-        # Adjust Benchmark to Strategy frequency
-        benchmark_prices = to_prices(benchmark, base=1)
-        new_index = _pd.date_range(start=period[0], end=period[-1], freq="D")
-        benchmark = (
-            benchmark_prices.reindex(new_index, method="bfill")
-            .reindex(period)
-            .pct_change()
-            .fillna(0)
-        )
-        benchmark = benchmark[benchmark.index.isin(period)]
-
-    benchmark = benchmark.tz_localize(None)
-
-    if prepare_returns:
-        return _prepare_returns(benchmark.dropna(), rf=rf)
-    return benchmark.dropna()
 
 
 def make_index(
