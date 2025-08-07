@@ -70,6 +70,7 @@ def snapshot(
     savefig=None,
     show=True,
     log_scale=False,
+    compounded=True,
     **kwargs,
 ):
     strategy_colname = kwargs.get("strategy_col", "Strategy")
@@ -169,7 +170,7 @@ def snapshot(
     axes[0].set_yscale("symlog" if log_scale else "linear")
     # axes[0].legend(fontsize=12)
 
-    dd = _stats.to_drawdown_series(returns) * 100
+    dd = _stats.to_drawdown_series(returns, compounded=compounded) * 100
     ddmin = _utils._round_to_closest(abs(dd.min()), 5)
     ddmin_ticks = 5
     if ddmin > 50:
@@ -683,7 +684,7 @@ def drawdown(
     savefig=None,
     show=True,
 ):
-    dd = _stats.to_drawdown_series(returns)
+    dd = _stats.to_drawdown_series(returns, compounded=compound)
 
     fig = _core.plot_timeseries(
         dd,

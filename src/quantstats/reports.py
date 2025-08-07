@@ -180,7 +180,7 @@ def html(
         tpl = tpl.replace("{{eoy_table}}", _html_table(yoy))
 
     if isinstance(returns, _pd.Series):
-        dd = _stats.to_drawdown_series(returns)
+        dd = _stats.to_drawdown_series(returns, compounded=compounded)
         dd_info = _stats.drawdown_details(dd).sort_values(
             by="max drawdown", ascending=True
         )[:10]
@@ -190,7 +190,7 @@ def html(
     elif isinstance(returns, _pd.DataFrame):
         dd_info_list = []
         for col in returns.columns:
-            dd = _stats.to_drawdown_series(returns[col])
+            dd = _stats.to_drawdown_series(returns[col], compounded=compounded)
             dd_info = _stats.drawdown_details(dd).sort_values(
                 by="max drawdown", ascending=True
             )[:10]
@@ -528,7 +528,7 @@ def full(
     elif isinstance(returns, _pd.DataFrame):
         returns.columns = strategy_title
 
-    dd = _stats.to_drawdown_series(returns)
+    dd = _stats.to_drawdown_series(returns, compounded=compounded)
 
     if isinstance(dd, _pd.Series):
         col = _stats.drawdown_details(dd).columns[4]
@@ -824,6 +824,7 @@ def metrics(
         df,
         display=(display or "internal" in kwargs),
         as_pct=kwargs.get("as_pct", False),
+        compounded=compounded,
     )
 
     metrics = _pd.DataFrame()
@@ -926,7 +927,12 @@ def metrics(
             elif isinstance(returns, _pd.DataFrame):
                 metrics["Volatility (ann.) %"] = ret_vol
 
-        metrics["Calmar"] = _stats.calmar(df, prepare_returns=False)
+        metrics["Calmar"] = _stats.calmar(
+            df,
+            prepare_returns=False,
+            compounded=compounded,
+            periods=periods_per_year,
+        )
         metrics["Skew"] = _stats.skew(df, prepare_returns=False)
         metrics["Kurtosis"] = _stats.kurtosis(df, prepare_returns=False)
 
@@ -1058,9 +1064,9 @@ def metrics(
     metrics["~~~~"] = blank
     for ix, row in dd.iterrows():
         metrics[ix] = row
-    metrics["Recovery Factor"] = _stats.recovery_factor(df)
-    metrics["Ulcer Index"] = _stats.ulcer_index(df)
-    metrics["Serenity Index"] = _stats.serenity_index(df, rf)
+    metrics["Recovery Factor"] = _stats.recovery_factor(df, compounded=compounded)
+    metrics["Ulcer Index"] = _stats.ulcer_index(df, compounded=compounded)
+    metrics["Serenity Index"] = _stats.serenity_index(df, rf, compounded=compounded)
 
     # win rate
     if mode.lower() == "full":
@@ -1295,6 +1301,7 @@ def plots(
             mode=("comp" if compounded else "sum"),
             benchmark_title=benchmark_colname,
             strategy_title=strategy_colname,
+            compounded=compounded,
         )
 
         if isinstance(returns, _pd.Series):
@@ -1521,8 +1528,8 @@ def plots(
             )
 
 
-def _calc_dd(df, display=True, as_pct=False):
-    dd = _stats.to_drawdown_series(df)
+def _calc_dd(df, display=True, as_pct=False, compounded=True):
+    dd = _stats.to_drawdown_series(df, compounded=compounded)
     dd_info = _stats.drawdown_details(dd)
 
     if dd_info.empty:

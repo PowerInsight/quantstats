@@ -112,9 +112,8 @@ def plot_returns_bars(
     savefig=None,
     show=True,
 ):
-
     if match_volatility and benchmark is None:
-        raise ValueError("match_volatility requires passing of " "benchmark.")
+        raise ValueError("match_volatility requires passing of benchmark.")
     if match_volatility and benchmark is not None:
         bmark_vol = benchmark.loc[returns.index].std()
         returns = (returns / returns.std()) * bmark_vol
@@ -265,7 +264,6 @@ def plot_timeseries(
     savefig=None,
     show=True,
 ):
-
     colors, ls, alpha = _get_colors(grayscale)
 
     returns.fillna(0, inplace=True)
@@ -273,7 +271,7 @@ def plot_timeseries(
         benchmark.fillna(0, inplace=True)
 
     if match_volatility and benchmark is None:
-        raise ValueError("match_volatility requires passing of " "benchmark.")
+        raise ValueError("match_volatility requires passing of benchmark.")
     if match_volatility and benchmark is not None:
         bmark_vol = benchmark.std()
         returns = (returns / returns.std()) * bmark_vol
@@ -291,9 +289,17 @@ def plot_timeseries(
 
     # Test 4
     if resample:
-        returns = returns.resample(resample).last() if compound else returns.resample(resample).sum()
+        returns = (
+            returns.resample(resample).last()
+            if compound
+            else returns.resample(resample).sum()
+        )
         if isinstance(benchmark, _pd.Series):
-            benchmark = benchmark.resample(resample).last() if compound else benchmark.resample(resample).sum()
+            benchmark = (
+                benchmark.resample(resample).last()
+                if compound
+                else benchmark.resample(resample).sum()
+            )
     # ---------------
 
     fig, ax = _plt.subplots(figsize=figsize)
@@ -418,7 +424,6 @@ def plot_histogram(
     savefig=None,
     show=True,
 ):
-
     # colors = ['#348dc1', '#003366', 'red']
     # if grayscale:
     #     colors = ['silver', 'gray', 'black']
@@ -615,7 +620,6 @@ def plot_rolling_stats(
     savefig=None,
     show=True,
 ):
-
     colors, _, _ = _get_colors(grayscale)
 
     fig, ax = _plt.subplots(figsize=figsize)
@@ -744,7 +748,6 @@ def plot_rolling_beta(
     savefig=None,
     show=True,
 ):
-
     colors, _, _ = _get_colors(grayscale)
 
     fig, ax = _plt.subplots(figsize=figsize)
@@ -888,12 +891,11 @@ def plot_longest_drawdowns(
     savefig=None,
     show=True,
 ):
-
     colors = ["#348dc1", "#003366", "red"]
     if grayscale:
         colors = ["#000000"] * 3
 
-    dd = _stats.to_drawdown_series(returns.fillna(0))
+    dd = _stats.to_drawdown_series(returns.fillna(0), compounded=compounded)
     dddf = _stats.drawdown_details(dd)
     longest_dd = dddf.sort_values(by="days", ascending=False, kind="mergesort")[
         :periods
@@ -1000,7 +1002,6 @@ def plot_distribution(
     savefig=None,
     show=True,
 ):
-
     colors = _FLATUI_COLORS
     if grayscale:
         colors = ["#f9f9f9", "#dddddd", "#bbbbbb", "#999999", "#808080"]
@@ -1117,7 +1118,6 @@ def plot_table(
     savefig=None,
     show=False,
 ):
-
     if columns is not None:
         try:
             tbl.columns = columns

@@ -531,7 +531,7 @@ def cagr(returns, rf=0.0, compounded=True, periods=252):
     return res
 
 
-def rar(returns, rf=0.0):
+def rar(returns, rf=0.0, periods=252):
     """
     Calculates the risk-adjusted return of access returns
     (CAGR / exposure. takes time into account.)
@@ -540,7 +540,7 @@ def rar(returns, rf=0.0):
     In this case, rf is assumed to be expressed in yearly (annualized) terms
     """
     returns = _utils._prepare_returns(returns, rf)
-    return cagr(returns) / exposure(returns)
+    return cagr(returns, periods=periods) / exposure(returns)
 
 
 def skew(returns, prepare_returns=True):
@@ -563,42 +563,44 @@ def kurtosis(returns, prepare_returns=True):
     return returns.kurtosis()
 
 
-def calmar(returns, prepare_returns=True):
+def calmar(returns, prepare_returns=True, compounded=True, periods=252):
     """Calculates the calmar ratio (CAGR% / MaxDD%)"""
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
-    cagr_ratio = cagr(returns)
-    max_dd = max_drawdown(returns)
+    cagr_ratio = cagr(returns, compounded=compounded, periods=periods)
+    max_dd = max_drawdown(returns, compounded=compounded)
     return cagr_ratio / abs(max_dd)
 
 
-def ulcer_index(returns):
+def ulcer_index(returns, compounded=True):
     """Calculates the ulcer index score (downside risk measurment)"""
-    dd = to_drawdown_series(returns)
+    dd = to_drawdown_series(returns, compounded=compounded)
     return _np.sqrt(_np.divide((dd**2).sum(), returns.shape[0] - 1))
 
 
-def ulcer_performance_index(returns, rf=0):
+def ulcer_performance_index(returns, rf=0, compounded=True):
     """
     Calculates the ulcer index score
     (downside risk measurment)
     """
-    return (comp(returns) - rf) / ulcer_index(returns)
+    return (comp(returns) - rf) / ulcer_index(returns, compounded=compounded)
 
 
-def upi(returns, rf=0):
+def upi(returns, rf=0, compounded=True):
     """Shorthand for ulcer_performance_index()"""
-    return ulcer_performance_index(returns, rf)
+    return ulcer_performance_index(returns, rf, compounded=compounded)
 
 
-def serenity_index(returns, rf=0):
+def serenity_index(returns, rf=0, compounded=True):
     """
     Calculates the serenity index score
     (https://www.keyquant.com/Download/GetFile?Filename=%5CPublications%5CKeyQuant_WhitePaper_APT_Part1.pdf)
     """
-    dd = to_drawdown_series(returns)
+    dd = to_drawdown_series(returns, compounded=compounded)
     pitfall = -cvar(dd) / returns.std()
-    return (returns.sum() - rf) / (ulcer_index(returns) * pitfall)
+    return (returns.sum() - rf) / (
+        ulcer_index(returns, compounded=compounded) * pitfall
+    )
 
 
 def risk_of_ruin(returns, prepare_returns=True):
@@ -743,12 +745,12 @@ def outlier_loss_ratio(returns, quantile=0.01, prepare_returns=True):
     return returns.quantile(quantile).mean() / returns[returns < 0].mean()
 
 
-def recovery_factor(returns, rf=0.0, prepare_returns=True):
+def recovery_factor(returns, rf=0.0, prepare_returns=True, compounded=True):
     """Measures how fast the strategy recovers from drawdowns"""
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
     total_returns = returns.sum() - rf
-    max_dd = max_drawdown(returns)
+    max_dd = max_drawdown(returns, compounded=compounded)
     return abs(total_returns) / abs(max_dd)
 
 
