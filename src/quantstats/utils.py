@@ -85,6 +85,11 @@ def to_prices(returns, base=1e5):
     return base + base * _compsum(returns)
 
 
+def to_prices_linear(returns, base=1e5):
+    returns = returns.copy().fillna(0).replace([_np.inf, -_np.inf], float("NaN"))
+    return base + base * returns.cumsum()
+
+
 def log_returns(returns, rf=0.0, nperiods=None):
     """Shorthand for to_log_returns"""
     return to_log_returns(returns, rf, nperiods)
@@ -192,18 +197,19 @@ def to_excess_returns(returns, rf, nperiods=None):
     return df
 
 
-def _prepare_prices(data, base=1.0):
+def _prepare_prices(data, base=1.0, compounded=True):
     """Converts return data into prices + cleanup"""
+    f = to_prices if compounded else to_prices_linear
     data = data.copy()
     if isinstance(data, _pd.DataFrame):
         for col in data.columns:
             if data[col].dropna().min() <= 0 or data[col].dropna().max() < 1:
-                data[col] = to_prices(data[col], base)
+                data[col] = f(data[col], base)
 
     # is it returns?
     # elif data.min() < 0 and data.max() < 1:
     elif data.min() < 0 or data.max() < 1:
-        data = to_prices(data, base)
+        data = f(data, base)
 
     if isinstance(data, (_pd.DataFrame, _pd.Series)):
         data = data.fillna(0).replace([_np.inf, -_np.inf], float("NaN"))

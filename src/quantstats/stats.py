@@ -762,15 +762,15 @@ def risk_return_ratio(returns, prepare_returns=True):
     return returns.mean() / returns.std()
 
 
-def max_drawdown(prices):
+def max_drawdown(prices, compounded=True):
     """Calculates the maximum drawdown"""
-    prices = _utils._prepare_prices(prices)
+    prices = _utils._prepare_prices(prices, compounded=compounded)
     return (prices / prices.expanding(min_periods=0).max()).min() - 1
 
 
-def to_drawdown_series(returns):
+def to_drawdown_series(returns, compounded=True):
     """Convert returns series to drawdown series"""
-    prices = _utils._prepare_prices(returns)
+    prices = _utils._prepare_prices(returns, compounded=compounded)
     dd = prices / _np.maximum.accumulate(prices) - 1.0
     return dd.replace([_np.inf, -_np.inf, -0], 0)
 
