@@ -26,7 +26,6 @@ from matplotlib.ticker import (
 )
 
 import numpy as _np
-from pandas import DataFrame as _df
 import pandas as _pd
 import seaborn as _sns
 
@@ -73,7 +72,6 @@ def snapshot(
     log_scale=False,
     **kwargs,
 ):
-
     strategy_colname = kwargs.get("strategy_col", "Strategy")
 
     multi_column = False
@@ -277,7 +275,6 @@ def earnings(
     savefig=None,
     show=True,
 ):
-
     colors = _GRAYSCALE_COLORS if grayscale else _FLATUI_COLORS
     alpha = 0.5 if grayscale else 0.8
 
@@ -294,7 +291,12 @@ def earnings(
     ax.spines["left"].set_visible(False)
 
     fig.suptitle(
-        f"    {title}", fontsize=12, y=0.95, fontname=fontname, fontweight="bold", color="black"
+        f"    {title}",
+        fontsize=12,
+        y=0.95,
+        fontname=fontname,
+        fontweight="bold",
+        color="black",
     )
 
     if subtitle:
@@ -391,7 +393,6 @@ def returns(
     show=True,
     prepare_returns=True,
 ):
-
     title = "Cumulative Returns" if compound else "Returns"
     if benchmark is not None:
         if isinstance(benchmark, str):
@@ -445,7 +446,6 @@ def log_returns(
     show=True,
     prepare_returns=True,
 ):
-
     title = "Cumulative Returns" if compound else "Returns"
     if benchmark is not None:
         if isinstance(benchmark, str):
@@ -500,7 +500,6 @@ def daily_returns(
     prepare_returns=True,
     active=False,
 ):
-
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
         if active and benchmark is not None:
@@ -548,7 +547,6 @@ def yearly_returns(
     show=True,
     prepare_returns=True,
 ):
-
     title = "EOY Returns"
     if benchmark is not None:
         title += "  vs Benchmark"
@@ -566,7 +564,7 @@ def yearly_returns(
     if compounded:
         returns = returns.resample("YE").apply(_stats.comp)
     else:
-        returns = returns.resample("YE").apply(_df.sum)
+        returns = returns.resample("YE").sum()
     returns = returns.resample("YE").last()
 
     fig = _core.plot_returns_bars(
@@ -638,7 +636,6 @@ def histogram(
     show=True,
     prepare_returns=True,
 ):
-
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
         if benchmark is not None:
@@ -686,7 +683,6 @@ def drawdown(
     savefig=None,
     show=True,
 ):
-
     dd = _stats.to_drawdown_series(returns)
 
     fig = _core.plot_timeseries(
@@ -769,7 +765,6 @@ def rolling_beta(
     show=True,
     prepare_returns=True,
 ):
-
     if prepare_returns:
         returns = _utils._prepare_returns(returns)
 
@@ -811,7 +806,6 @@ def rolling_volatility(
     savefig=None,
     show=True,
 ):
-
     returns = _stats.rolling_volatility(returns, period, periods_per_year)
 
     if benchmark is not None:
@@ -855,7 +849,6 @@ def rolling_sharpe(
     savefig=None,
     show=True,
 ):
-
     returns = _stats.rolling_sharpe(
         returns,
         rf,
@@ -905,7 +898,6 @@ def rolling_sortino(
     savefig=None,
     show=True,
 ):
-
     returns = _stats.rolling_sortino(returns, rf, period, True, periods_per_year)
 
     if benchmark is not None:
